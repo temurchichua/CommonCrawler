@@ -1,0 +1,12 @@
+.idea
+env/
+venv/
+data/
+!*/data/indexes.py
+data/
+tools/models/lid.176.bin
+lid.176.bin
+__pycache__
+*/__pychache__
+.env
+.venv

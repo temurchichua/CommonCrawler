@@ -1,0 +1,4 @@
+fasttext
+requests
+tqdm
+urllib3

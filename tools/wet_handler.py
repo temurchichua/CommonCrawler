@@ -12,6 +12,7 @@ from tools.slacker import post_to_slack
 BASE_URL = 'https://commoncrawl.s3.amazonaws.com/'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 class LanguageIdentification:
 
     def __init__(self):
@@ -23,8 +24,8 @@ class LanguageIdentification:
 
         if not os.path.exists(model_path):
             # !!! add mkdir functionality
-            downlaod_url = "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin"
-            file_downloader(downlaod_url, os.path.dirname(model_path))
+            download_url = "https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin"
+            file_downloader(download_url, os.path.dirname(model_path))
 
         self.model = fasttext.load_model(model_path)
 
@@ -34,6 +35,7 @@ class LanguageIdentification:
 
 
 LANGUAGE = LanguageIdentification()
+
 
 def notify(message):
     tqdm.write(message)
@@ -61,31 +63,29 @@ def get_wet(warc_index):
     """
     try:
         return gzip_to_file(warc_index['wet_url'], dir_path="data/" + warc_index['CC'])
-    except:
-        notify(f"corrupted file at {warc_index['filename']}")
+    except Exception as e:
+        notify(f"corrupted file at {warc_index['filename']}: {e}")
         return None
 
 
 def process_wets(file_path, language="ka", sequence=False, separator="\n"):
-    # with pool:
-    #     for _ in tqdm(pool.imap_unordered(html_to_text, infile), total=total_lines, desc="Parallel Process"):
-    #         pass
+    """ extracts text out of WET file"""
     flag = False
     clear_list = list()
     with open(file_path, 'r', encoding="utf-8") as infile:
-        for line in infile:
-            if "WARC-Identified-Content-Language" in line and "kat" in line:
+        for a_line in infile:
+            if "WARC-Identified-Content-Language" in a_line and "kat" in a_line:
                 flag = True
                 continue
 
-            elif "WARC-Identified-Content-Language" in line and "kat" not in line:
+            elif "WARC-Identified-Content-Language" in a_line and "kat" not in a_line:
                 flag = False
                 continue
 
             if flag:
                 # process
-                split_line = line.strip()
-                if split_line != "":
+                split_line = a_line.strip()
+                if split_line != "" and split_line not in clear_list:
                     if language:
                         predicted_language = LANGUAGE.predict_lang(split_line)
                         if predicted_language[0][0] == f"__label__{language}" and predicted_language[1][0] > 0.8:
@@ -103,11 +103,13 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
                 save_file(separator.join(clear_list))
 
 
-
-
 def wet_line_to_text(wet_line):
     # get index dict from warc_line
     index = warc_line_to_json(wet_line, for_wet=True)
+
+    # if wet file doesn't contain Georgian text
+    if 'kat' not in index.get('languages', []):
+        return None
 
     # if file was already processed
     if search_in_file(index['filename'], f'data/{index["CC"]}/finished_wets.txt'):
@@ -121,10 +123,16 @@ def wet_line_to_text(wet_line):
     if not wet_file:
         return None
 
+    # main wet file to text file process
     process_wets(wet_file)
-    # process
-    # os.remove(wet_file)
+
+    # clean the workspace
+    os.remove(wet_file)
+
+    # add file to finished files list
     save_file(index['filename'], f'data/{index["CC"]}/finished_wets.txt')
+
+    return True
 
 
 if __name__ == "__main__":

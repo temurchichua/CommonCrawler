@@ -52,7 +52,7 @@ def get_filename(file, url=False):
     return os.path.splitext(file)
 
 
-def gzip_to_file(file_url, dir_path="/data"):
+def gzip_to_file(file_url, dir_path="/data", log=None):
     # get filename of the gzip
     filename, file_extension = get_filename(file_url, url=True)
     gzip_path = os.path.join(dir_path, filename + file_extension)
@@ -69,13 +69,13 @@ def gzip_to_file(file_url, dir_path="/data"):
         file_path = extract_gzip(gzip_path, folder_path=dir_path)
     else:
         # downloading gzip
-        gzip_file = download_gzip(file_url, folder_path=dir_path)
+        gzip_file = download_gzip(file_url, folder_path=dir_path, log=log)
         # extracting data
         file_path = extract_gzip(gzip_file, folder_path=dir_path)
     return file_path
 
 
-def download_gzip(gzip_url, folder_path='data/'):
+def download_gzip(gzip_url, folder_path='data/', log=None):
     """
     Downloads gzip file and stores it locally
         :param gzip_url: url to download file
@@ -97,7 +97,7 @@ def download_gzip(gzip_url, folder_path='data/'):
         tqdm.write(f"File {file_name} has been found")
         return file_path, file_name
     try:
-        file_downloader(url=gzip_url, save_dir=folder_path)
+        file_downloader(url=gzip_url, save_dir=folder_path, log=log)
     except error.HTTPError as e:
         tqdm.write(e)
         tqdm.write(f'- ❌ Download has failed from:\n{gzip_url}')
