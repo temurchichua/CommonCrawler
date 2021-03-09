@@ -5,7 +5,7 @@ import argparse
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from data.month_indexes import month_indexes
+from data.indexes import month_indexes
 from tools.cdx_handler import main_loop
 from tools.timing import Timer
 from tools.wet_handler import wet_line_to_text, notify
