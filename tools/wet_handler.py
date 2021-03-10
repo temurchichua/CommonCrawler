@@ -1,5 +1,6 @@
 import json
 import os
+from json.decoder import JSONDecodeError
 
 from tqdm import tqdm
 import fasttext
@@ -46,7 +47,12 @@ def warc_line_to_json(warc_line, for_wet=False):
     """
     :returns dict from warcs line + adds wet warcs url
     """
-    warc_index = json.loads('{"url":' + warc_line.split('{"url":')[1])
+    try:
+        warc_index = json.loads('{"url":' + warc_line.split('{"url":')[1])
+    except JSONDecodeError as error:
+        notify(f"error {error} at {warc_line}")
+        return None
+
     warc_index['warc_url'] = BASE_URL + warc_index['filename']
     warc_index['CC'] = "-".join(warc_index['filename'].split("/")[1].split("-")[2:4])
     if for_wet:
@@ -107,6 +113,8 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
 def wet_line_to_text(wet_line):
     # get index dict from warc_line
     index = warc_line_to_json(wet_line, for_wet=True)
+    if index:
+        return None
 
     # if wet file doesn't contain Georgian text
     if 'kat' not in index.get('languages', []):
