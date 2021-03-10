@@ -85,7 +85,7 @@ def main_loop(month_index, pool):
 
 if __name__ == '__main__':
     month_index = '2021-04'
-    for step_index in range(300):
+    for step_index in range(1, 300):
         t = Timer()
         with t:
             cdx_processor(step_index, month_index)

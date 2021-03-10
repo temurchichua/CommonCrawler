@@ -74,13 +74,14 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
     clear_list = list()
     with open(file_path, 'r', encoding="utf-8") as infile:
         for a_line in infile:
-            if "WARC-Identified-Content-Language" in a_line and "kat" in a_line:
-                flag = True
-                continue
+            if "WARC-Identified-Content-Language" in a_line:
+                if "kat" in a_line:
+                    flag = True
+                    continue
 
-            elif "WARC-Identified-Content-Language" in a_line and "kat" not in a_line:
-                flag = False
-                continue
+                else:
+                    flag = False
+                    continue
 
             if flag:
                 # process
