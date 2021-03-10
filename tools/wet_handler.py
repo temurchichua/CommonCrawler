@@ -113,7 +113,7 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
 def wet_line_to_text(wet_line):
     # get index dict from warc_line
     index = warc_line_to_json(wet_line, for_wet=True)
-    if index:
+    if not index:
         return None
 
     # if wet file doesn't contain Georgian text
