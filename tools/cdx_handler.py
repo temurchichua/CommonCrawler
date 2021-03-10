@@ -76,7 +76,7 @@ def cdx_processor(step_index, month_index, pool):
 
 
 def main_loop(month_index, pool):
-    for step_index in range(300):
+    for step_index in range(1, 300):
         t = Timer()
         with t:
             cdx_processor(step_index, month_index, pool)
