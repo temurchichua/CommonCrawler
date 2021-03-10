@@ -2,7 +2,7 @@ import os
 
 # common crawl storage server
 from tqdm import tqdm
-
+from multiprocessing import Pool
 from tools.file_managment import gzip_to_file, save_file, search_in_file, lines_in_file
 from tools.timing import Timer
 from tools.wet_handler import notify, wet_line_to_text
@@ -36,18 +36,15 @@ def get_cdx(cdx_url, cc_directory, log=False):
         return None
 
 
-def cdx_file_processor(cdx_file, pool):
+def cdx_file_processor(cdx_file, subs):
     total = lines_in_file(cdx_file)
     with open(cdx_file) as cdx_file:
-        with pool:
+        with Pool(subs) as pool:
             for _ in tqdm(pool.imap_unordered(wet_line_to_text, cdx_file), total=total, desc="Parallel Process"):
                 pass
 
-        pool.join()
-        pool.close()
 
-
-def cdx_processor(step_index, month_index, pool):
+def cdx_processor(step_index, month_index, subs):
     cdx_index = chunk_index(step_index)
     cc_directory = f'data/{month_index}'
 
@@ -65,7 +62,7 @@ def cdx_processor(step_index, month_index, pool):
     if not cdx_file:
         return None
 
-    cdx_file_processor(cdx_file, pool)
+    cdx_file_processor(cdx_file, subs)
 
     # clean the workspace
     os.remove(cdx_file)
@@ -76,11 +73,11 @@ def cdx_processor(step_index, month_index, pool):
     return True
 
 
-def main_loop(month_index, pool):
+def main_loop(month_index, subs):
     for step_index in range(1, 300):
         t = Timer()
         with t:
-            cdx_processor(step_index, month_index, pool)
+            cdx_processor(step_index, month_index, subs)
         notify(f"- ✔ finished cdx {step_index} in {(t.elapsed_time / 60):.2f} min")
 
 

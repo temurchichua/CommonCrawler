@@ -28,9 +28,8 @@ if subs >= num_workers:
 
 
 if __name__ == '__main__':
-    pool = mp.Pool(subs)
     message = f"Started new Work with {subs} processes"
     notify(message)
-    main_loop(month_indexes[0], pool)
+    main_loop(month_indexes[0], subs)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
