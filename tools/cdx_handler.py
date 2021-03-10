@@ -39,11 +39,12 @@ def get_cdx(cdx_url, cc_directory, log=False):
 def cdx_file_processor(cdx_file, pool):
     total = lines_in_file(cdx_file)
     with open(cdx_file) as cdx_file:
-        # for index_line in tqdm(cdx_file, total=total, desc="Processing CDX"):
-        #     cdx_line_handler(index_line, pool)
         with pool:
             for _ in tqdm(pool.imap_unordered(wet_line_to_text, cdx_file), total=total, desc="Parallel Process"):
                 pass
+
+        pool.join()
+        pool.close()
 
 
 def cdx_processor(step_index, month_index, pool):
