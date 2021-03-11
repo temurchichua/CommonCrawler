@@ -66,12 +66,18 @@ def gzip_to_file(file_url, dir_path="/data", log=None):
     elif os.path.exists(gzip_path):
         tqdm.write(f"file {filename} is already downloaded")
         # extracting data
-        file_path = extract_gzip(gzip_path, folder_path=dir_path)
+        try:
+            file_path = extract_gzip(gzip_path, folder_path=dir_path)
+        except:
+            os.remove(gzip_path)
     else:
         # downloading gzip
         gzip_file = download_gzip(file_url, folder_path=dir_path, log=log)
         # extracting data
-        file_path = extract_gzip(gzip_file, folder_path=dir_path)
+        try:
+            file_path = extract_gzip(gzip_path, folder_path=dir_path)
+        except:
+            os.remove(gzip_path)
     return file_path
 
 
