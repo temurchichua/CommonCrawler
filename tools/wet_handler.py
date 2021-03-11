@@ -51,6 +51,7 @@ def warc_line_to_json(warc_line, for_wet=False):
         warc_index = json.loads('{"url":' + warc_line.split('{"url":')[1])
     except JSONDecodeError as error:
         notify(f"error {error} at {warc_line}")
+        save_file(warc_line, f'data/corrupted_warc_lines.txt')
         return None
 
     warc_index['warc_url'] = BASE_URL + warc_index['filename']
@@ -70,7 +71,8 @@ def get_wet(warc_index):
     try:
         return gzip_to_file(warc_index['wet_url'], dir_path="data/" + warc_index['CC'])
     except Exception as e:
-        notify(f"corrupted file at {warc_index['filename']}: {e}")
+        tqdm.write(f"corrupted file at {warc_index['filename']}: {e}")
+        save_file(warc_index['filename'], f'data/{warc_index["CC"]}/corrupted_warcs.txt')
         return None
 
 
