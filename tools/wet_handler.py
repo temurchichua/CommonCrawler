@@ -81,10 +81,11 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
     flag = False
     clear_list = list()
     with open(file_path, 'rb') as infile:
-        for a_line in infile:
+        for i, a_line in enumerate(infile):
             try:
                 a_line.decode('utf-8')
             except UnicodeDecodeError as e:
+                tqdm.write('Line: {}, Offset: {}, {}'.format(i, e.start, e.reason))
                 continue
 
             if "WARC-Identified-Content-Language" in a_line:
