@@ -80,8 +80,13 @@ def process_wets(file_path, language="ka", sequence=False, separator="\n"):
     """ extracts text out of WET file"""
     flag = False
     clear_list = list()
-    with open(file_path, 'r', encoding="utf-8") as infile:
+    with open(file_path, 'rb') as infile:
         for a_line in infile:
+            try:
+                a_line.decode('utf-8')
+            except UnicodeDecodeError as e:
+                continue
+
             if "WARC-Identified-Content-Language" in a_line:
                 if "kat" in a_line:
                     flag = True
@@ -135,13 +140,19 @@ def wet_line_to_text(wet_line):
         return None
 
     # main wet file to text file process
-    process_wets(wet_file)
+    finished_process = None
+    try:
+        finished_process = process_wets(wet_file)
+    except Exception as e:
+        tqdm.write(f"corrupted file at {index['filename']}: {e}")
+        save_file(index['filename'], f'data/{index["CC"]}/corrupted_warcs.txt')
 
     # clean the workspace
     os.remove(wet_file)
 
     # add file to finished files list
-    save_file(index['filename'], f'data/{index["CC"]}/finished_wets.txt')
+    if finished_process:
+        save_file(index['filename'], f'data/{index["CC"]}/finished_wets.txt')
 
     return True
 
