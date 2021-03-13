@@ -78,7 +78,8 @@ def main_loop(month_index, subs):
         t = Timer()
         with t:
             cdx_processor(step_index, month_index, subs)
-        notify(f"- ✔ finished cdx {step_index} in {(t.elapsed_time / 60):.2f} min")
+        if t.elapsed_time > 60:
+            notify(f"- ✔ finished cdx {step_index} in {(t.elapsed_time / 60):.2f} min")
 
 
 if __name__ == '__main__':

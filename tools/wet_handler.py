@@ -138,7 +138,10 @@ def wet_line_to_text(wet_line):
     process_wets(wet_file)
 
     # clean the workspace
-    os.remove(wet_file)
+    try:
+        os.remove(wet_file)
+    except FileNotFoundError:
+        return None
 
     # add file to finished files list
     save_file(index['filename'], f'data/{index["CC"]}/finished_wets.txt')
